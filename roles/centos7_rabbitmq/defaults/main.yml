@@ -1,0 +1,4 @@
+---
+pkg_names:
+  - { repo_name: rabbitmq, pkg_name: rabbitmq-server, pkg_version: v3.8.x }
+  - { repo_name: rabbitmq-erlang, pkg_name: erlang, pkg_version: 23 }

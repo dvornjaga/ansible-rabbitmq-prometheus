@@ -1,0 +1,4 @@
+---
+logical_volumes:
+  - { lv_name: lv_lib, lv_size: 4g }
+  - { lv_name: lv_log, lv_size: 4g }

@@ -1,0 +1,19 @@
+---
+- name: Add docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: '0644'
+
+- name: Install docker
+  yum:
+    name: 
+      - docker-ce
+      - python-docker
+    state: present
+
+- name: Start and enable docker
+  service:
+    name: docker
+    state: started
+    enabled: yes

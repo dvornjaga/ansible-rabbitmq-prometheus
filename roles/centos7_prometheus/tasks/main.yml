@@ -1,0 +1,43 @@
+---
+- name: Mount lib/log volumes
+  mount:
+    path: /opt/prometheus/{{ item }}/
+    src: /dev/vg0/lv_{{ item }}
+    fstype: ext4
+    state: mounted
+  loop: ["lib", "log"]
+
+- name: Create prometheus config directory
+  file:
+    path: /opt/prometheus/etc/
+    state: directory
+    mode: '0755'
+
+
+- name: Copy prometheus config
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/prometheus/etc/prometheus.yml
+    mode: '0644'  
+
+- name: Create prometheus container
+  docker_container:
+    name: prometheus
+    image: prom/prometheus
+    state: started
+    restart_policy: unless-stopped
+    user: root:root
+    ports:
+      - "9090:9090"
+    volumes:
+      - /opt/prometheus/etc/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /opt/prometheus/lib:/prometheus
+      - /opt/prometheus/log:/log
+
+- name: Add ports to firewalld
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  loop: [9090/tcp]

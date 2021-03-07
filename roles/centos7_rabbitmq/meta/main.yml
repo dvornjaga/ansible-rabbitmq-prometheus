@@ -1,0 +1,4 @@
+---
+dependencies:
+  - centos7_common
+  - centos7_lvm

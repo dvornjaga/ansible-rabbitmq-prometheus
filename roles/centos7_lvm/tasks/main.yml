@@ -1,0 +1,18 @@
+---
+- name: Create volume group
+  lvg:
+    vg: vg0
+    pvs: /dev/sdb
+
+- name: Create logical volumes
+  lvol:
+    vg: vg0
+    lv: "{{ item.lv_name }}"
+    size: "{{ item.lv_size }}"
+  loop: "{{ logical_volumes }}"
+
+- name: Create ext4 filesystem on volumes
+  filesystem:
+    fstype: ext4
+    dev: /dev/vg0/{{ item.lv_name }}
+  loop: "{{ logical_volumes }}"

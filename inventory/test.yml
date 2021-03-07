@@ -1,0 +1,11 @@
+rabbitmq:
+  hosts:
+    test-rabbitmq-01:
+      ansible_host: 172.16.1.77
+      ansible_ssh_user: root
+      
+prometheus:
+  hosts:
+    test-prometheus-01:
+      ansible_host: 172.16.1.76
+      ansible_ssh_user: root

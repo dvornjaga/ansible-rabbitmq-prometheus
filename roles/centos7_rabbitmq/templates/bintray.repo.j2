@@ -1,0 +1,7 @@
+[{{ item.pkg_name }}]
+name=rabbitmq
+baseurl=https://dl.bintray.com/{{ item.repo_name }}/rpm/{{ item.pkg_name }}/{{ item.pkg_version }}/el/7/
+repo_gpgcheck=0
+gpgcheck=1
+enabled=1
+gpgkey=https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc

@@ -1,0 +1,81 @@
+---
+- name: Mount lib/log volumes
+  mount:
+    path: /var/{{ item }}/rabbitmq
+    src: /dev/vg0/lv_{{ item }}
+    fstype: ext4
+    state: mounted
+  loop: ["lib", "log"]
+
+- name: Add bintray repos
+  template:
+    src: bintray.repo.j2
+    dest: /etc/yum.repos.d/bintray-{{ item.pkg_name }}.repo
+    mode: '0644'
+  loop: "{{ pkg_names }}"
+
+- name: Install rabbitmq-server
+  yum:
+    name: rabbitmq-server
+    state: present
+
+- name: Start rabbitmq-server
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- name: Add rabbitmq certificates
+  copy:
+    src: "{{ item }}"
+    dest: /etc/rabbitmq/
+    mode: '0644'
+  loop: [ca_certificate.pem, server_certificate.pem, server_key.pem]
+  notify: restart rabbitmq-server
+
+- name: Add rabbitmq config
+  copy:
+    src: rabbitmq.conf
+    dest: /etc/rabbitmq/rabbitmq.conf
+    mode: '0644'
+  notify: restart rabbitmq-server
+
+- name: Add rabbitmq virtual host
+  rabbitmq_vhost:
+    name: /test
+    state: present
+
+- name: Add rabbitmq admin user
+  rabbitmq_user:
+    user: administator
+    password: administratorpass
+    update_password: on_create
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
+
+- name: Add rabbitmq tech user for virtual host
+  rabbitmq_user:
+    user: tech
+    password: techpass
+    update_password: on_create
+    vhost: /test
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
+
+- name: Enable rabbitmq plugins
+  rabbitmq_plugin:
+    names: rabbitmq_management,rabbitmq_prometheus
+    state: enabled
+
+- name: Add ports to firewalld
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  loop: [5671/tcp, 15672/tcp, 15692/tcp]
